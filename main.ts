@@ -43,6 +43,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     const referrerBps = Number(req.query.referrerBps);
     const evmReferrer = req.query.evmReferrer!.toString();
     const solanaReferrer = req.query.solanaReferrer!.toString();
+	const relayerAddress = req.query.relayerAddress!.toString();
     if (!chainNames.includes(fromChain) || !chainNames.includes(toChain)) {
       res.status(406).send("Invalid chain name");
       return;
@@ -67,10 +68,17 @@ app.get("/solana", async (req: Request, res: Response) => {
       }
     );
 
+    let swiftQuote = quotes.find((q) => q.type === "SWIFT");
+    if (!swiftQuote) {
+      res.status(406).send("No SWIFT quote available");
+    }
+
+	swiftQuote!.relayer = relayerAddress;
+
     const swapperWallet = req.query.swapperAddress!.toString();
     const destAddress = req.query.destAddress!.toString();
     const swap = await createSwapFromSolanaInstructions(
-      quotes[0],
+      swiftQuote!,
       swapperWallet,
       destAddress,
       {
@@ -145,11 +153,16 @@ app.get("/evm", async (req: Request, res: Response) => {
       }
     );
 
+    let swiftQuote = quotes.find((q) => q.type === "SWIFT");
+    if (!swiftQuote) {
+      res.status(406).send("No SWIFT quote available");
+    }
+
     const swapperWallet = req.query.swapperAddress!.toString();
-    const signerAddress = swapperWallet;
+    const signerAddress = req.query.signerAddress!.toString();;
     const destAddress = req.query.destAddress!.toString();
     const swap = getSwapFromEvmTxPayload(
-      quotes[0],
+      swiftQuote!,
       swapperWallet,
       destAddress,
       {
@@ -157,11 +170,10 @@ app.get("/evm", async (req: Request, res: Response) => {
         solana: solanaReferrer,
       },
       signerAddress,
-	  chainNameToId[fromChain],
-	  null,
-	  null,
+      chainNameToId[fromChain],
+      null,
+      null
     );
-
 
     res.json(swap);
   } catch (err: any) {
