@@ -1,11 +1,12 @@
 import {
-	ChainName,
-	createSwapFromSolanaInstructions,
-	fetchQuote,
-	getSwapFromEvmTxPayload,
+  ChainName,
+  createSwapFromSolanaInstructions,
+  fetchQuote,
+  getSwapFromEvmTxPayload,
 } from "@mayanfinance/swap-sdk";
 import { Connection } from "@solana/web3.js";
 import express, { Request, Response } from "express";
+import { getSwiftFromEvmGasLessParams } from "./swift";
 const app = express();
 const port = 3000;
 
@@ -43,7 +44,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     const referrerBps = Number(req.query.referrerBps);
     const evmReferrer = req.query.evmReferrer!.toString();
     const solanaReferrer = req.query.solanaReferrer!.toString();
-	const relayerAddress = req.query.relayerAddress!.toString();
+    const relayerAddress = req.query.relayerAddress!.toString();
     if (!chainNames.includes(fromChain) || !chainNames.includes(toChain)) {
       res.status(406).send("Invalid chain name");
       return;
@@ -73,7 +74,7 @@ app.get("/solana", async (req: Request, res: Response) => {
       res.status(406).send("No SWIFT quote available");
     }
 
-	swiftQuote!.relayer = relayerAddress;
+    swiftQuote!.relayer = relayerAddress;
 
     const swapperWallet = req.query.swapperAddress!.toString();
     const destAddress = req.query.destAddress!.toString();
@@ -172,10 +173,81 @@ app.get("/evm", async (req: Request, res: Response) => {
       signerAddress,
       chainNameToId[fromChain],
       null,
-      null
+      null,
+    );
+    for (let i = 0; i < swap._forwarder.params.length; i++) {
+      const item = swap._forwarder.params[i];
+      if (typeof item === "bigint") {
+        swap._forwarder.params[i] = item.toString();
+      } else if (typeof item.value === "bigint") {
+        swap._forwarder.params[i].value = item.value.toString();
+      }
+    }
+    res.json(swap);
+  } catch (err: any) {
+    console.error(err, err.stack);
+    res.status(500).send(err);
+  }
+});
+
+app.get("/evm-gasless", async (req: Request, res: Response) => {
+  try {
+    const amountIn = Number(req.query.amountIn);
+    const fromToken = req.query.fromToken!.toString();
+    const toToken = req.query.toToken!.toString();
+    const fromChain = req.query.fromChain!.toString();
+    const toChain = req.query.toChain!.toString();
+    const slippageBps = Number(req.query.slippageBps);
+    const gasDrop = Number(req.query.gasDrop);
+    const referrerBps = Number(req.query.referrerBps);
+    const evmReferrer = req.query.evmReferrer!.toString();
+    const solanaReferrer = req.query.solanaReferrer!.toString();
+    if (!chainNames.includes(fromChain) || !chainNames.includes(toChain)) {
+      res.status(406).send("Invalid chain name");
+      return;
+    }
+    const quotes = await fetchQuote(
+      {
+        amount: Number(amountIn),
+        fromToken: fromToken!.toString(),
+        toToken: toToken!.toString(),
+        fromChain: fromChain as ChainName,
+        toChain: toChain as ChainName,
+        slippageBps: slippageBps,
+        gasDrop: gasDrop,
+        referrerBps: referrerBps,
+        referrer: fromChain === "solana" ? solanaReferrer : evmReferrer,
+      },
+      {
+        gasless: true,
+        mctp: false,
+        onlyDirect: false,
+        swift: true,
+      }
     );
 
-    res.json(swap);
+    let swiftQuote = quotes.find((q) => q.type === "SWIFT");
+    if (!swiftQuote) {
+      res.status(406).send("No SWIFT quote available");
+    }
+
+    const swiftGasless = await getSwiftFromEvmGasLessParams(
+      swiftQuote!,
+      req.query.swapperAddress!.toString(),
+      req.query.destAddress!.toString(),
+      fromChain === "solana" ? solanaReferrer : evmReferrer,
+      chainNameToId[fromChain],
+      {
+        deadline: Number(req.query.permitDeadline),
+        r: req.query.permitR!.toString(),
+        s: req.query.permitS!.toString(),
+        v: Number(req.query.permitV),
+        value: BigInt(req.query.permitValue!.toString()),
+      }
+    );
+    swiftGasless.orderTypedData.value.SubmissionFee = swiftGasless.orderTypedData.value.SubmissionFee.toString() as any;
+    swiftGasless.orderTypedData.value.InputAmount = swiftGasless.orderTypedData.value.InputAmount.toString() as any;
+    res.json(swiftGasless.orderTypedData);
   } catch (err: any) {
     console.error(err, err.stack);
     res.status(500).send(err);

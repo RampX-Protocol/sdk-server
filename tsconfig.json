@@ -2,7 +2,7 @@
     "compilerOptions": {
         "outDir": "./dist", // Output directory
         "rootDir": "./", // Source root
-        "target": "ES6", // ECMAScript version
+        "target": "ES2016", // ECMAScript version
         "module": "commonjs", // Module system
         "strict": true, // Enable strict mode
         "esModuleInterop": true // Allow interop between CommonJS and ES Modules
