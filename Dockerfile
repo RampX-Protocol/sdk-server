@@ -7,7 +7,7 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . njkllolmk
+COPY . .
 
 RUN npx tsc
 
