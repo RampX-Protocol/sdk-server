@@ -160,7 +160,7 @@ app.get("/evm", async (req: Request, res: Response) => {
     const swapperWallet = req.query.swapperAddress!.toString();
     const signerAddress = req.query.signerAddress!.toString();;
     const destAddress = req.query.destAddress!.toString();
-    const swap = getSwapFromEvmTxPayload(
+    const swapWithExtras = getSwapFromEvmTxPayload(
       swiftQuote!,
       swapperWallet,
       destAddress,
@@ -173,14 +173,16 @@ app.get("/evm", async (req: Request, res: Response) => {
       null,
       null,
     );
-    for (let i = 0; i < swap._forwarder.params.length; i++) {
-      const item = swap._forwarder.params[i];
-      if (typeof item === "bigint") {
-        swap._forwarder.params[i] = item.toString();
-      } else if (typeof item.value === "bigint") {
-        swap._forwarder.params[i].value = item.value.toString();
-      }
-    }
+    // for (let i = 0; i < swap._forwarder.params.length; i++) {
+    //   const item = swap._forwarder.params[i];
+    //   if (typeof item === "bigint") {
+    //     swap._forwarder.params[i] = item.toString();
+    //   } else if (typeof item.value === "bigint") {
+    //     swap._forwarder.params[i].value = item.value.toString();
+    //   }
+    // }
+    const {_forwarder, ...swap} = swapWithExtras;
+    swap.value = swap.value
     res.json({
       quote: swiftQuote,
       swap: swap

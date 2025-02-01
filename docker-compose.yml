@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   mayan-sdk-server:
-    hostname: mayan-sdk-server
     build:
       context: .
       dockerfile: Dockerfile
