@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mayan-sdk-server:
+    hostname: mayan-sdk-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:3000"
+    restart: unless-stopped
+    networks:
+      sdk-network:
+        aliases:
+          - mayan-sdk-server
+
+networks:
+  sdk-network:
+    driver: bridge

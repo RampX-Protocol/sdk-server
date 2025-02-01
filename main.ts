@@ -107,9 +107,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     }
 
     res.json({
-      addressLookupTableAddresses: swap.lookupTables.map((lt) =>
-        lt.key.toString()
-      ),
+      quote: swiftQuote,
       instructions: instructions,
     });
   } catch (err: any) {
@@ -183,7 +181,10 @@ app.get("/evm", async (req: Request, res: Response) => {
         swap._forwarder.params[i].value = item.value.toString();
       }
     }
-    res.json(swap);
+    res.json({
+      quote: swiftQuote,
+      swap: swap
+    });
   } catch (err: any) {
     console.error(err, err.stack);
     res.status(500).send(err);
