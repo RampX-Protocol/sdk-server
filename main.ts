@@ -39,7 +39,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();
     const toChain = req.query.toChain!.toString();
-    const slippageBps = Number(req.query.slippageBps);
+    const slippageBps = req.query.slippageBps != "auto" ? Number(req.query.slippageBps) : "auto";
     const gasDrop = Number(req.query.gasDrop);
     const referrerBps = Number(req.query.referrerBps);
     const evmReferrer = req.query.evmReferrer!.toString();
@@ -123,7 +123,7 @@ app.get("/evm", async (req: Request, res: Response) => {
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();
     const toChain = req.query.toChain!.toString();
-    const slippageBps = Number(req.query.slippageBps);
+    const slippageBps = req.query.slippageBps != "auto" ? Number(req.query.slippageBps) : "auto";
     const gasDrop = Number(req.query.gasDrop);
     const referrerBps = Number(req.query.referrerBps);
     const evmReferrer = req.query.evmReferrer!.toString();
