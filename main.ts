@@ -34,7 +34,7 @@ const chainNameToId: any = {
 
 app.get("/solana", async (req: Request, res: Response) => {
   try {
-    const amountIn64 = Number(req.query.amountIn);
+    const amountIn64 = req.query.amountIn!.toString();
     const fromToken = req.query.fromToken!.toString();
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();
@@ -118,7 +118,7 @@ app.get("/solana", async (req: Request, res: Response) => {
 
 app.get("/evm", async (req: Request, res: Response) => {
   try {
-    const amountIn64 = req.query.amountIn;
+    const amountIn64 = req.query.amountIn!.toString();
     const fromToken = req.query.fromToken!.toString();
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();

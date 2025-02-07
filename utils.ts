@@ -9,12 +9,12 @@ export const isValidAptosType = (str: string): boolean =>
 	/^(0x)?[0-9a-fA-F]+::\w+::\w+$/.test(str);
 
 export function nativeAddressToHexString(
-	address: string, wChainId: number) : string {
+	address: string, wChainId: number): string {
 	if (wChainId === 1) {
 		return zeroPadValue(new PublicKey(address).toBytes(), 32);
 	} else if (
 		wChainId === 2 || wChainId === 4 || wChainId === 5 ||
-		wChainId === 6  || wChainId === 23 || wChainId === 24 ||
+		wChainId === 6 || wChainId === 23 || wChainId === 24 ||
 		wChainId === 30
 	) {
 		return zeroPadValue(address, 32);
@@ -37,7 +37,7 @@ export function hexToUint8Array(input: string): Uint8Array {
 
 
 export function getAmountOfFractionalAmount(
-	amount: string | number, decimals: string | number) : bigint {
+	amount: string | number, decimals: string | number): bigint {
 	if (amount === null || amount === undefined) {
 		throw new Error('getAmountOfFractionalAmount: Amount is null or undefined');
 	}
@@ -62,11 +62,11 @@ export function getAmountOfFractionalAmount(
 }
 
 export function getDisplayAmount(
-	inputAmount: ethers.BigNumberish, decimals: string | ethers.BigNumberish) : number {
-	return  Number(formatUnits(inputAmount, decimals))
+	inputAmount: ethers.BigNumberish, decimals: string | ethers.BigNumberish): number {
+	return Number(formatUnits(inputAmount, decimals))
 }
 
-const chains: { [index in ChainName]: number }  = {
+const chains: { [index in ChainName]: number } = {
 	solana: 1,
 	ethereum: 2,
 	bsc: 4,
@@ -76,13 +76,14 @@ const chains: { [index in ChainName]: number }  = {
 	optimism: 24,
 	base: 30,
 	aptos: 22,
+	sui: 99
 };
 
-export function getWormholeChainIdByName(chain: string) : number | null {
+export function getWormholeChainIdByName(chain: string): number | null {
 	return chains[chain as ChainName];
 }
 
-const evmChainIdMap: { [index: string]: number }  = {
+const evmChainIdMap: { [index: string]: number } = {
 	[1]: 2,
 	[56]: 4,
 	[137]: 5,
@@ -105,7 +106,7 @@ export function getEvmChainIdByName(chain: ChainName) {
 
 
 
-export function getWormholeChainIdById(chainId: number) : number | null {
+export function getWormholeChainIdById(chainId: number): number | null {
 	return evmChainIdMap[chainId];
 }
 

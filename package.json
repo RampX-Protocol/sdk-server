@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@mayanfinance/swap-sdk": "^9.2.0",
-    "@solana/web3.js": "^1.95.3",
-    "ethers": "^6.13.2",
+    "@mayanfinance/swap-sdk": "^10.2.0",
+    "@solana/web3.js": "^1.87.6",
+    "ethers": "^6",
     "express": "^4.19.2"
   },
   "devDependencies": {
