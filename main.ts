@@ -34,7 +34,7 @@ const chainNameToId: any = {
 
 app.get("/solana", async (req: Request, res: Response) => {
   try {
-    const amountIn = Number(req.query.amountIn);
+    const amountIn64 = Number(req.query.amountIn);
     const fromToken = req.query.fromToken!.toString();
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();
@@ -51,7 +51,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     }
     const quotes = await fetchQuote(
       {
-        amount: Number(amountIn),
+        amountIn64: amountIn64,
         fromToken: fromToken!.toString(),
         toToken: toToken!.toString(),
         fromChain: fromChain as ChainName,
@@ -118,7 +118,7 @@ app.get("/solana", async (req: Request, res: Response) => {
 
 app.get("/evm", async (req: Request, res: Response) => {
   try {
-    const amountIn = Number(req.query.amountIn);
+    const amountIn64 = req.query.amountIn;
     const fromToken = req.query.fromToken!.toString();
     const toToken = req.query.toToken!.toString();
     const fromChain = req.query.fromChain!.toString();
@@ -134,7 +134,7 @@ app.get("/evm", async (req: Request, res: Response) => {
     }
     const quotes = await fetchQuote(
       {
-        amount: Number(amountIn),
+        amountIn64: amountIn64,
         fromToken: fromToken!.toString(),
         toToken: toToken!.toString(),
         fromChain: fromChain as ChainName,
@@ -181,7 +181,7 @@ app.get("/evm", async (req: Request, res: Response) => {
     //     swap._forwarder.params[i].value = item.value.toString();
     //   }
     // }
-    const {_forwarder, ...swap} = swapWithExtras;
+    const { _forwarder, ...swap } = swapWithExtras;
     swap.value = swap.value
     res.json({
       quote: swiftQuote,
