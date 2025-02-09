@@ -3,6 +3,7 @@ import {
   createSwapFromSolanaInstructions,
   fetchQuote,
   getSwapFromEvmTxPayload,
+  QuoteError,
 } from "@mayanfinance/swap-sdk";
 import { Connection } from "@solana/web3.js";
 import express, { Request, Response } from "express";
@@ -109,10 +110,18 @@ app.get("/solana", async (req: Request, res: Response) => {
     res.json({
       quote: swiftQuote,
       instructions: instructions,
+      addressLookupTableAddresses: swap.lookupTables.map((lt) =>
+        lt.key.toString()
+      ),
     });
-  } catch (err: any) {
-    console.error(err, err.stack);
-    res.status(500).send(err);
+  } catch (err) {
+    if (err.code && err.message) {
+      console.error(err, err.stack);
+      res.status(400).send(err.code + " - " + err.message);
+    } else {
+      console.error(err, err.stack);
+      res.status(500).send(err);
+    }
   }
 });
 
@@ -132,6 +141,7 @@ app.get("/evm", async (req: Request, res: Response) => {
       res.status(406).send("Invalid chain name");
       return;
     }
+
     const quotes = await fetchQuote(
       {
         amountIn64: amountIn64,
@@ -187,9 +197,14 @@ app.get("/evm", async (req: Request, res: Response) => {
       quote: swiftQuote,
       swap: swap
     });
-  } catch (err: any) {
-    console.error(err, err.stack);
-    res.status(500).send(err);
+  } catch (err) {
+    if (err.code && err.message) {
+      console.error(err, err.stack);
+      res.status(400).send(err.code + err.message);
+    } else {
+      console.error(err, err.stack);
+      res.status(500).send(err);
+    }
   }
 });
 
