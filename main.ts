@@ -200,7 +200,7 @@ app.get("/evm", async (req: Request, res: Response) => {
   } catch (err) {
     if (err.code && err.message) {
       console.error(err, err.stack);
-      res.status(400).send(err.code + err.message);
+      res.status(400).send(err.code + " - " + err.message);
     } else {
       console.error(err, err.stack);
       res.status(500).send(err);
