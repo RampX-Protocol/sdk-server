@@ -73,6 +73,7 @@ app.get("/solana", async (req: Request, res: Response) => {
     let swiftQuote = quotes.find((q) => q.type === "SWIFT");
     if (!swiftQuote) {
       res.status(406).send("No SWIFT quote available");
+      return;
     }
 
     swiftQuote!.relayer = relayerAddress;
@@ -165,6 +166,7 @@ app.get("/evm", async (req: Request, res: Response) => {
     let swiftQuote = quotes.find((q) => q.type === "SWIFT");
     if (!swiftQuote) {
       res.status(406).send("No SWIFT quote available");
+      return;
     }
 
     const swapperWallet = req.query.swapperAddress!.toString();
@@ -183,6 +185,7 @@ app.get("/evm", async (req: Request, res: Response) => {
       null,
       null,
     );
+
     // for (let i = 0; i < swap._forwarder.params.length; i++) {
     //   const item = swap._forwarder.params[i];
     //   if (typeof item === "bigint") {
@@ -191,6 +194,10 @@ app.get("/evm", async (req: Request, res: Response) => {
     //     swap._forwarder.params[i].value = item.value.toString();
     //   }
     // }
+
+
+    console.log(swapWithExtras);
+    console.log(swiftQuote);
     const { _forwarder, ...swap } = swapWithExtras;
     swap.value = swap.value
     res.json({
